@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🀄 MandaRim — Painel de Testes</title>
+  <style>
+    :root {
+      --bg: #0f1117; --card: #1a1d27; --line: #2a2f3d; --txt: #e6e8ee;
+      --muted: #9aa3b2; --accent: #e23b3b; --ok: #2ecc71; --warn: #f1c40f;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--txt);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    header h1 { font-size: 20px; margin: 0; }
+    .api-bar { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    main { max-width: 1000px; margin: 0 auto; padding: 24px;
+      display: grid; gap: 20px; grid-template-columns: 1fr 1fr; }
+    .card { background: var(--card); border: 1px solid var(--line);
+      border-radius: 12px; padding: 18px; }
+    .card.full { grid-column: 1 / -1; }
+    .card h2 { margin: 0 0 12px; font-size: 16px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
+    input, select { width: 100%; padding: 9px 11px; background: #11141c;
+      border: 1px solid var(--line); border-radius: 8px; color: var(--txt); font-size: 14px; }
+    button { cursor: pointer; padding: 9px 14px; border: none; border-radius: 8px;
+      background: var(--accent); color: #fff; font-size: 14px; font-weight: 600; }
+    button.ghost { background: transparent; border: 1px solid var(--line); color: var(--txt); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+    .dot.ok { background: var(--ok); } .dot.bad { background: var(--accent); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .stat { background: #11141c; border: 1px solid var(--line); border-radius: 8px; padding: 10px; text-align: center; }
+    .stat b { display: block; font-size: 22px; }
+    .stat span { font-size: 11px; color: var(--muted); }
+    .flash { text-align: center; padding: 22px; }
+    .flash .hanzi { font-size: 54px; line-height: 1.1; }
+    .flash .pinyin { font-size: 20px; color: var(--warn); margin-top: 6px; }
+    .flash .trans { font-size: 16px; color: var(--muted); margin-top: 6px; min-height: 20px; }
+    .opt { text-align: left; width: 100%; background: #11141c; border: 1px solid var(--line);
+      color: var(--txt); margin: 6px 0; font-weight: 400; }
+    .opt.correct { border-color: var(--ok); background: #16321f; }
+    .opt.wrong { border-color: var(--accent); background: #331717; }
+    pre { background: #0b0d13; border: 1px solid var(--line); border-radius: 8px;
+      padding: 12px; overflow: auto; font-size: 12px; max-height: 220px; margin: 0; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🀄 MandaRim — Painel de Testes</h1>
+    <div class="api-bar">
+      <span class="dot" id="healthDot"></span>
+      <input id="apiBase" value="http://localhost:3001" style="width: 230px" />
+      <button class="ghost" onclick="checkHealth()">Testar conexão</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- AUTH -->
+    <section class="card" id="authCard">
+      <h2>Autenticação</h2>
+      <div id="loggedOut">
+        <label>Nome (cadastro)</label>
+        <input id="regName" placeholder="Seu nome" />
+        <label>E-mail</label>
+        <input id="email" placeholder="voce@exemplo.com" />
+        <label>Senha (mín. 6)</label>
+        <input id="password" type="password" placeholder="••••••" />
+        <div class="row" style="margin-top: 12px">
+          <button onclick="register()">Cadastrar</button>
+          <button class="ghost" onclick="login()">Entrar</button>
+        </div>
+      </div>
+      <div id="loggedIn" class="hidden">
+        <p class="muted">Logado como <b id="whoName"></b> (<span id="whoEmail"></span>)</p>
+        <div class="row">
+          <span class="pill">HSK <b id="whoLevel"></b></span>
+          <span class="pill">🔥 streak <b id="whoStreak"></b></span>
+          <button class="ghost" onclick="logout()">Sair</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="card" id="statsCard">
+      <h2>Progresso</h2>
+      <div class="stats">
+        <div class="stat"><b id="sLearned">–</b><span>aprendidas</span></div>
+        <div class="stat"><b id="sLearning">–</b><span>aprendendo</span></div>
+        <div class="stat"><b id="sPending">–</b><span>pendentes</span></div>
+        <div class="stat"><b id="sDue">–</b><span>p/ revisar</span></div>
+      </div>
+      <button class="ghost" style="margin-top: 12px" onclick="loadProgress()">Atualizar progresso</button>
+    </section>
+
+    <!-- FLASHCARD -->
+    <section class="card full">
+      <h2>Flashcards & Exercício</h2>
+      <div class="row">
+        <label style="margin: 0">Nível</label>
+        <select id="level" style="width: 120px" onchange="loadVocab()">
+          <option value="1">HSK 1</option>
+          <option value="2">HSK 2</option>
+          <option value="3">HSK 3</option>
+        </select>
+        <span class="muted" id="vocabCount"></span>
+      </div>
+
+      <div class="flash">
+        <div class="hanzi" id="fHanzi">汉</div>
+        <div class="pinyin" id="fPinyin">Hàn</div>
+        <div class="trans" id="fTrans"></div>
+        <div class="row" style="justify-content: center; margin-top: 12px">
+          <button class="ghost" onclick="speak()">🔊 Pronunciar (zh-CN)</button>
+          <button class="ghost" onclick="revealTrans()">Ver tradução</button>
+          <button class="ghost" onclick="nextCard()">Próximo →</button>
+          <button onclick="makeExercise()">Gerar exercício</button>
+        </div>
+      </div>
+
+      <div id="exerciseBox" class="hidden">
+        <p id="exQuestion" style="font-weight: 600"></p>
+        <div id="exOptions"></div>
+        <p class="muted" id="exResult"></p>
+      </div>
+    </section>
+
+    <!-- RAW RESPONSE -->
+    <section class="card full">
+      <h2>Última resposta da API <span class="pill" id="lastEndpoint"></span></h2>
+      <pre id="raw">—</pre>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const api = () => $('apiBase').value.replace(/\/$/, '');
+    let token = localStorage.getItem('mandarim_token') || null;
+    let vocab = [];
+    let cardIndex = 0;
+
+    function showRaw(endpoint, data) {
+      $('lastEndpoint').textContent = endpoint;
+      $('raw').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function call(method, path, body, useAuth) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (useAuth && token) headers.Authorization = 'Bearer ' + token;
+      const res = await fetch(api() + path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      let data;
+      try { data = await res.json(); } catch { data = { raw: await res.text() }; }
+      showRaw(method + ' ' + path + ' → ' + res.status, data);
+      return { status: res.status, data };
+    }
+
+    async function checkHealth() {
+      try {
+        const { status } = await call('GET', '/health');
+        $('healthDot').className = 'dot ' + (status === 200 ? 'ok' : 'bad');
+      } catch (e) {
+        $('healthDot').className = 'dot bad';
+        showRaw('GET /health → ERRO', { error: String(e), dica: 'O backend está rodando? (npm run dev em backend/)' });
+      }
+    }
+
+    function setSession(data) {
+      token = data.token;
+      localStorage.setItem('mandarim_token', token);
+      renderUser(data.user);
+      loadProgress();
+    }
+
+    function renderUser(user) {
+      $('loggedOut').classList.add('hidden');
+      $('loggedIn').classList.remove('hidden');
+      $('whoName').textContent = user.name;
+      $('whoEmail').textContent = user.email;
+      $('whoLevel').textContent = user.hskLevel ?? user.hsk_level ?? 1;
+      $('whoStreak').textContent = user.streak ?? 0;
+    }
+
+    async function register() {
+      const { status, data } = await call('POST', '/auth/register', {
+        name: $('regName').value, email: $('email').value, password: $('password').value,
+      });
+      if (status === 201) setSession(data);
+      else alert(data.error || 'Erro no cadastro');
+    }
+
+    async function login() {
+      const { status, data } = await call('POST', '/auth/login', {
+        email: $('email').value, password: $('password').value,
+      });
+      if (status === 200) setSession(data);
+      else alert(data.error || 'Falha no login');
+    }
+
+    function logout() {
+      token = null;
+      localStorage.removeItem('mandarim_token');
+      $('loggedIn').classList.add('hidden');
+      $('loggedOut').classList.remove('hidden');
+      ['sLearned', 'sLearning', 'sPending', 'sDue'].forEach((id) => ($(id).textContent = '–'));
+    }
+
+    async function loadProfile() {
+      const { status, data } = await call('GET', '/user/profile', null, true);
+      if (status === 200) { renderUser({ ...data.user }); renderStats(data.stats); }
+    }
+
+    async function loadProgress() {
+      if (!token) return;
+      const { status, data } = await call('GET', '/user/progress', null, true);
+      if (status === 200) {
+        renderStats(data.stats);
+        $('whoStreak').textContent = data.streak ?? 0;
+      }
+    }
+
+    function renderStats(s) {
+      $('sLearned').textContent = s.learned;
+      $('sLearning').textContent = s.learning;
+      $('sPending').textContent = s.pending;
+      $('sDue').textContent = s.dueNow;
+    }
+
+    async function loadVocab() {
+      const level = $('level').value;
+      const { status, data } = await call('GET', '/vocabulary?level=' + level, null, true);
+      if (status === 200) {
+        vocab = data.vocabulary;
+        $('vocabCount').textContent = vocab.length + ' palavras';
+        cardIndex = 0;
+        renderCard();
+      }
+    }
+
+    function renderCard() {
+      if (!vocab.length) return;
+      const w = vocab[cardIndex];
+      $('fHanzi').textContent = w.hanzi;
+      $('fPinyin').textContent = w.pinyin;
+      $('fTrans').textContent = '';
+      $('exerciseBox').classList.add('hidden');
+    }
+    function revealTrans() { $('fTrans').textContent = vocab[cardIndex]?.translation || ''; }
+    function nextCard() { if (vocab.length) { cardIndex = (cardIndex + 1) % vocab.length; renderCard(); } }
+
+    function speak() {
+      const w = vocab[cardIndex];
+      if (!w || !window.speechSynthesis) return;
+      const u = new SpeechSynthesisUtterance(w.hanzi);
+      u.lang = 'zh-CN';
+      speechSynthesis.speak(u);
+    }
+
+    async function makeExercise() {
+      const w = vocab[cardIndex];
+      if (!w) return;
+      const { status, data } = await call('POST', '/exercise/generate', { vocabularyId: w.id }, true);
+      if (status !== 200) return;
+      $('exerciseBox').classList.remove('hidden');
+      $('exQuestion').textContent = data.question + '  (' + (data.source === 'ia' ? 'via IA' : 'fallback local') + ')';
+      $('exResult').textContent = '';
+      const box = $('exOptions');
+      box.innerHTML = '';
+      (data.options || []).forEach((opt) => {
+        const b = document.createElement('button');
+        b.className = 'opt';
+        b.textContent = opt;
+        b.onclick = () => answer(b, opt, data.answer, w.id);
+        box.appendChild(b);
+      });
+    }
+
+    async function answer(btn, chosen, correctAnswer, vocabularyId) {
+      const correct = chosen === correctAnswer;
+      [...$('exOptions').children].forEach((b) => (b.disabled = true));
+      btn.className = 'opt ' + (correct ? 'correct' : 'wrong');
+      $('exResult').textContent = correct ? '✅ Correto!' : '❌ Errado — resposta: ' + correctAnswer;
+      if (token) {
+        await call('POST', '/user/progress', { vocabularyId, correct }, true);
+        loadProgress();
+      }
+    }
+
+    // init
+    checkHealth();
+    if (token) loadProfile();
+    loadVocab();
+  </script>
+</body>
+</html>
