@@ -1,0 +1,38 @@
+# ============================================================
+# MandaRim — Render Blueprint (Backend + Serviço de IA)
+# Painel Render: New > Blueprint > conecte este repositório.
+# (O Frontend é publicado na Vercel — veja o README.)
+#
+# Os dois serviços usam o Dockerfile de cada pasta (mesmo ambiente
+# já validado localmente com `docker compose`).
+# ============================================================
+services:
+  # ---------- Serviço de IA (Python + FastAPI + Gemini) ----------
+  - type: web
+    name: mandarim-ia-service
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./ia-service/Dockerfile
+    dockerContext: ./ia-service
+    healthCheckPath: /health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # cole sua chave do Google AI Studio no painel
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+
+  # ---------- Backend (Node + Express + node:sqlite) ----------
+  - type: web
+    name: mandarim-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true # a Render gera um segredo forte automaticamente
+      - key: IA_SERVICE_URL
+        sync: false # cole a URL pública do mandarim-ia-service (https://...onrender.com)
