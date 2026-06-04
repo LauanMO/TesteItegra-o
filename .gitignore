@@ -1,0 +1,9 @@
+# Segredos do docker-compose (NUNCA commitar)
+.env
+.env.local
+
+# Artefatos comuns
+**/node_modules/
+**/dist/
+**/.venv/
+**/__pycache__/

@@ -1,0 +1,39 @@
+# MandaRim — sobe os 3 sistemas com um comando: `docker compose up --build`
+# Variáveis sensíveis vêm do arquivo .env na raiz (veja .env.example).
+services:
+  ia-service:
+    build: ./ia-service
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      PORT: "8000"
+    ports:
+      - "8000:8000"
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: "3001"
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      # Comunicação interna entre containers usa o nome do serviço:
+      IA_SERVICE_URL: http://ia-service:8000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - ia-service
+    volumes:
+      - backend-data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # O navegador roda no host, então aponta para o backend exposto em localhost:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend-data:
