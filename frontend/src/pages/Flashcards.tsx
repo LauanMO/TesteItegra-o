@@ -3,13 +3,34 @@ import { api } from '../api';
 import type { Word } from '../types';
 import './Flashcards.css';
 
-function speak(hanzi: string) {
-  if (!('speechSynthesis' in window)) return;
+// Fala em mandarim. Estratégia em camadas para funcionar em qualquer máquina:
+//  1) TTS online (Google Translate) — não exige voz zh instalada no SO;
+//  2) fallback: Web Speech API nativa, caso o navegador tenha voz em zh.
+// A reprodução de áudio cross-origin via <audio> não sofre bloqueio de CORS.
+function speakViaWebSpeech(hanzi: string): boolean {
+  if (!('speechSynthesis' in window)) return false;
+  const voices = window.speechSynthesis.getVoices();
+  const zh = voices.find((v) => v.lang?.toLowerCase().startsWith('zh'));
   const u = new SpeechSynthesisUtterance(hanzi);
-  u.lang = 'zh-CN';
+  u.lang = zh?.lang || 'zh-CN';
+  if (zh) u.voice = zh;
   u.rate = 0.85;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(u);
+  return true;
+}
+
+function speak(hanzi: string) {
+  const url =
+    'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=' +
+    encodeURIComponent(hanzi);
+  const audio = new Audio(url);
+  audio.play().catch(() => {
+    // Sem internet/bloqueado → tenta a voz nativa do navegador.
+    if (!speakViaWebSpeech(hanzi)) {
+      console.warn('[MandaRim] Não foi possível reproduzir a pronúncia.');
+    }
+  });
 }
 
 export function Flashcards() {
