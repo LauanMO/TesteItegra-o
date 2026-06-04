@@ -95,6 +95,8 @@ def generate_exercise(word: str, pinyin: str = "", meaning: str = "") -> dict:
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     response_schema=_ExerciseSchema,
+                    # Desliga o "thinking" do 2.5-flash: tarefa simples, latência menor.
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
                 ),
             )
             data = json.loads(resp.text)
@@ -152,6 +154,8 @@ def generate_flashcard(word: str) -> dict:
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     response_schema=_FlashcardSchema,
+                    # Desliga o "thinking" do 2.5-flash: tarefa simples, latência menor.
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
                 ),
             )
             data = json.loads(resp.text)
