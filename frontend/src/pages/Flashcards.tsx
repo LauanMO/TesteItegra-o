@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../api';
+import { api, API_BASE } from '../api';
 import type { Word } from '../types';
 import './Flashcards.css';
 
@@ -21,9 +21,8 @@ function speakViaWebSpeech(hanzi: string): boolean {
 }
 
 function speak(hanzi: string) {
-  const url =
-    'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=' +
-    encodeURIComponent(hanzi);
+  // Toca pelo proxy do backend (evita bloqueio/consent do Google no navegador).
+  const url = `${API_BASE}/tts?lang=zh-CN&text=${encodeURIComponent(hanzi)}`;
   const audio = new Audio(url);
   audio.play().catch(() => {
     // Sem internet/bloqueado → tenta a voz nativa do navegador.
