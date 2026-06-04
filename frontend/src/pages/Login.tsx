@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../auth';
+import { ThemeToggle } from '../theme';
+import './Login.css';
 
-export function Login() {
+export function Login({ theme, toggle }: { theme: 'light' | 'dark'; toggle: () => void }) {
   const { login, register } = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
@@ -29,11 +31,14 @@ export function Login() {
   return (
     <div className="login-wrap">
       <div className="ghost-hanzi">学</div>
+      <div className="login-topbar">
+        <ThemeToggle theme={theme} toggle={toggle} />
+      </div>
       <div className="login-card panel rise">
         <div className="brand" style={{ marginBottom: 18 }}>
           <span className="seal">學</span>
           <div className="name" style={{ fontSize: 28 }}>
-            Manda<em style={{ color: 'var(--vermilion)', fontStyle: 'normal' }}>Rim</em>
+            Manda<em style={{ color: 'var(--accent)', fontStyle: 'normal' }}>Rim</em>
           </div>
         </div>
         <h1 style={{ fontSize: 34 }}>{isRegister ? 'Criar conta' : 'Bem-vindo de volta'}</h1>

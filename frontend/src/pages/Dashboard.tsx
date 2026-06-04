@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import type { Progress } from '../types';
+import './Dashboard.css';
 
 export function Dashboard() {
   const [data, setData] = useState<Progress | null>(null);

@@ -1,0 +1,68 @@
+/* ============================================================
+   Layout — shell, topbar, navegação, userbox, toggle de tema
+   ============================================================ */
+.shell { min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px clamp(16px, 5vw, 56px);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-glass);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .name { font-family: var(--font-display); font-size: 23px; font-weight: 800; letter-spacing: -0.03em; }
+.brand .name em { color: var(--accent); font-style: normal; }
+.brand .sub { font-size: 11px; color: var(--text-faint); letter-spacing: 0.22em; text-transform: uppercase; }
+
+.nav { margin-left: auto; display: flex; gap: 2px; background: var(--surface-2); padding: 4px; border-radius: 14px; border: 1px solid var(--border-soft); }
+.nav button {
+  background: none; border: none; color: var(--text-soft);
+  font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 10px;
+  position: relative; transition: color 0.18s, background 0.18s;
+}
+.nav button:hover { color: var(--text); }
+.nav button.active { color: #fff; background: var(--grad); box-shadow: var(--shadow-sm); }
+
+.userbox { display: flex; align-items: center; gap: 12px; padding-left: 12px; border-left: 1px solid var(--border); }
+.userbox .who { text-align: right; line-height: 1.2; }
+.userbox .who b { font-weight: 700; font-size: 14px; }
+.userbox .who small { display: block; color: var(--text-faint); font-size: 12px; }
+.streak { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; }
+
+main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: clamp(22px, 4vw, 48px); }
+
+/* ---------- Toggle de tema (claro/escuro) ---------- */
+.theme-toggle { background: none; border: none; padding: 0; line-height: 0; }
+.theme-toggle__track {
+  display: flex; align-items: center;
+  width: 56px; height: 30px; padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  transition: background 0.3s;
+}
+.theme-toggle__thumb {
+  display: grid; place-items: center;
+  width: 24px; height: 24px; border-radius: 999px; font-size: 13px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transform: translateX(0);
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-theme='dark'] .theme-toggle__thumb { transform: translateX(26px); }
+
+@media (max-width: 720px) {
+  .topbar { flex-wrap: wrap; gap: 12px; }
+  .nav { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+  .userbox { margin-left: auto; }
+}
+@media (max-width: 640px) {
+  .userbox .who { display: none; }
+}

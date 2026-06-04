@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import type { Word, Exercise as Ex } from '../types';
+import './Exercise.css';
 
 type Mode = 'choice' | 'pinyin';
 

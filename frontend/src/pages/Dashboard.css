@@ -1,0 +1,27 @@
+/* ---------- Dashboard ---------- */
+.statgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.statcard {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow-sm);
+  transition: transform 0.16s, box-shadow 0.16s;
+}
+.statcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.statcard .num { font-family: var(--font-display); font-size: 42px; font-weight: 800; line-height: 1; }
+.statcard .lab { color: var(--text-soft); font-size: 13px; margin-top: 8px; font-weight: 600; }
+.statcard.accent { background: var(--grad); border-color: transparent; }
+.statcard.accent .num, .statcard.accent .lab { color: #fff; }
+.statcard.accent .lab { opacity: 0.85; }
+
+.levelrow { display: grid; grid-template-columns: 64px 1fr 72px; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
+.levelrow:last-child { border-bottom: none; }
+.levelrow .lname { font-weight: 700; }
+.bar { height: 10px; background: var(--surface-2); border-radius: 999px; overflow: hidden; border: 1px solid var(--border-soft); }
+.bar > span { display: block; height: 100%; background: var(--grad); border-radius: 999px; transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.levelrow .frac { text-align: right; color: var(--text-soft); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 600; }
+.duelist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 14px; font-weight: 500; }
+.chip b { font-family: var(--font-hanzi); font-weight: 700; }
+
+@media (max-width: 640px) {
+  .statgrid { grid-template-columns: repeat(2, 1fr); }
+}

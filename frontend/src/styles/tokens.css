@@ -1,0 +1,85 @@
+/* ============================================================
+   Tokens — fontes + variáveis de tema (claro padrão / escuro)
+   Acento: cinábrio→tangerina (朱) com apoio jade e violeta.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=Noto+Sans+SC:wght@500;700;900&display=swap');
+
+/* ---------- LIGHT (padrão) ---------- */
+:root {
+  --bg: #f4f2ef;
+  --bg-2: #ece8f2;
+  --surface: #ffffff;
+  --surface-2: #f7f5fb;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+
+  --text: #14131a;
+  --text-soft: #56535f;
+  --text-faint: #908c9c;
+
+  --border: #e8e4ef;
+  --border-soft: #f0edf5;
+  --border-strong: #d8d2e2;
+
+  --accent: #f5402a;          /* cinábrio */
+  --accent-2: #ff7a2f;        /* tangerina */
+  --accent-deep: #c4261a;
+  --grad: linear-gradient(135deg, #f5402a 0%, #ff7a2f 100%);
+  --grad-soft: linear-gradient(135deg, rgba(245, 64, 42, 0.12), rgba(255, 122, 47, 0.12));
+  --jade: #0fae93;
+  --violet: #6d5efc;
+  --ok: #16a06a;
+  --ok-soft: rgba(22, 160, 106, 0.12);
+  --bad-soft: rgba(245, 64, 42, 0.1);
+
+  --ring: rgba(245, 64, 42, 0.16);
+  --shadow: 0 20px 50px -24px rgba(36, 22, 50, 0.32);
+  --shadow-sm: 0 6px 18px -10px rgba(36, 22, 50, 0.28);
+  --card-radius: 20px;
+
+  /* compat: inline styles antigos referenciam --vermilion */
+  --vermilion: var(--accent);
+
+  --font-display: 'Bricolage Grotesque', Georgia, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-hanzi: 'Noto Sans SC', sans-serif;
+
+  --blob-a: radial-gradient(680px 520px at 88% -8%, rgba(245, 64, 42, 0.13), transparent 60%);
+  --blob-b: radial-gradient(620px 520px at -10% 8%, rgba(109, 94, 252, 0.1), transparent 58%);
+  --blob-c: radial-gradient(720px 620px at 50% 118%, rgba(15, 174, 147, 0.1), transparent 60%);
+}
+
+/* ---------- DARK ---------- */
+[data-theme='dark'] {
+  --bg: #0a0910;
+  --bg-2: #100d1a;
+  --surface: #16131f;
+  --surface-2: #1c1828;
+  --surface-glass: rgba(22, 19, 31, 0.66);
+
+  --text: #f3f1f7;
+  --text-soft: #aaa4bb;
+  --text-faint: #6f6883;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --border-soft: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --accent: #ff5a44;
+  --accent-2: #ff9a4d;
+  --accent-deep: #ff7a5a;
+  --grad: linear-gradient(135deg, #ff5a44 0%, #ff9a4d 100%);
+  --grad-soft: linear-gradient(135deg, rgba(255, 90, 68, 0.18), rgba(255, 154, 77, 0.18));
+  --jade: #2ad4b4;
+  --violet: #9484ff;
+  --ok: #34d399;
+  --ok-soft: rgba(52, 211, 153, 0.16);
+  --bad-soft: rgba(255, 90, 68, 0.16);
+
+  --ring: rgba(255, 122, 60, 0.28);
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 8px 22px -12px rgba(0, 0, 0, 0.65);
+
+  --blob-a: radial-gradient(680px 520px at 88% -8%, rgba(255, 90, 68, 0.2), transparent 60%);
+  --blob-b: radial-gradient(620px 520px at -10% 8%, rgba(148, 132, 255, 0.16), transparent 58%);
+  --blob-c: radial-gradient(720px 620px at 50% 118%, rgba(42, 212, 180, 0.14), transparent 60%);
+}

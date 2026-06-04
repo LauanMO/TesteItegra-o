@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from './auth';
+import { useTheme, ThemeToggle } from './theme';
 import { Login } from './pages/Login';
 import { Flashcards } from './pages/Flashcards';
 import { Exercise } from './pages/Exercise';
@@ -15,17 +16,18 @@ const TABS: { id: Tab; label: string }[] = [
 
 export function App() {
   const { user, ready, logout } = useAuth();
+  const { theme, toggle } = useTheme();
   const [tab, setTab] = useState<Tab>('flash');
 
   if (!ready) {
     return (
       <div className="login-wrap">
-        <span className="seal">學</span>
+        <span className="seal pulse">學</span>
       </div>
     );
   }
 
-  if (!user) return <Login />;
+  if (!user) return <Login theme={theme} toggle={toggle} />;
 
   return (
     <div className="shell">
@@ -51,6 +53,7 @@ export function App() {
         </nav>
 
         <div className="userbox">
+          <ThemeToggle theme={theme} toggle={toggle} />
           <div className="who">
             <b>{user.name}</b>
             <small>

@@ -1,0 +1,15 @@
+/* ---------- Login ---------- */
+.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; position: relative; overflow: hidden; }
+.login-topbar { position: absolute; top: 22px; right: 24px; z-index: 2; }
+.login-wrap .ghost-hanzi {
+  position: absolute; font-family: var(--font-hanzi); font-weight: 900;
+  font-size: min(74vh, 64vw); color: var(--accent); opacity: 0.06;
+  right: -5vw; bottom: -12vh; pointer-events: none; user-select: none;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.login-card { width: 100%; max-width: 430px; position: relative; z-index: 1; }
+.login-card h1 { font-size: 34px; font-weight: 800; }
+.login-card .lede { color: var(--text-soft); margin: 8px 0 26px; font-size: 16px; }
+.switch { margin-top: 18px; font-size: 14px; color: var(--text-soft); }
+.switch button { background: none; border: none; color: var(--accent); font: inherit; font-weight: 700; padding: 0; cursor: pointer; }
+.switch button:hover { text-decoration: underline; }

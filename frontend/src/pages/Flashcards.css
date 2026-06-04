@@ -1,0 +1,29 @@
+/* ---------- Flashcards ---------- */
+.deckbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.deckbar .count { margin-left: auto; color: var(--text-faint); font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.flashcard {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  padding: 50px 28px 36px;
+  text-align: center;
+  min-height: 350px;
+  display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+}
+.flashcard::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(420px 220px at 50% -10%, var(--grad-soft), transparent 70%);
+}
+.flashcard .corner { position: absolute; top: 18px; right: 20px; font-family: var(--font-hanzi); color: var(--border-strong); font-size: 30px; }
+.flashcard .hanzi {
+  font-family: var(--font-hanzi); font-weight: 700; font-size: clamp(96px, 22vw, 156px); line-height: 1;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.flashcard .pinyin { font-family: var(--font-display); font-weight: 600; font-size: 30px; color: var(--jade); margin-top: 16px; }
+.flashcard .trans { font-size: 21px; color: var(--text-soft); margin-top: 10px; font-weight: 600; }
+.reveal-hidden { filter: blur(10px); opacity: 0.35; transition: filter 0.28s, opacity 0.28s; }
+.flashcard .actions { display: flex; gap: 10px; justify-content: center; margin-top: 32px; flex-wrap: wrap; position: relative; }

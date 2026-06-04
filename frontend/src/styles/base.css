@@ -1,0 +1,58 @@
+/* ============================================================
+   Base — reset, tipografia, fundo, selo/logo, animações globais
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  background-color: var(--bg);
+  background-image: var(--blob-a), var(--blob-b), var(--blob-c);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+}
+button, input, select { font-family: var(--font-body); font-size: 1rem; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ---------- Selo / logo (compartilhado: topbar + login) ---------- */
+.seal {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--grad);
+  color: #fff;
+  font-family: var(--font-hanzi);
+  font-weight: 900;
+  font-size: 24px;
+  border-radius: 14px;
+  box-shadow: 0 10px 22px -8px rgba(245, 64, 42, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  user-select: none;
+}
+.seal.pulse { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.92); opacity: 0.75; } }
+
+/* ---------- Animação de entrada (usada em várias páginas) ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise:nth-child(2) { animation-delay: 0.06s; }
+.rise:nth-child(3) { animation-delay: 0.12s; }
+.rise:nth-child(4) { animation-delay: 0.18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

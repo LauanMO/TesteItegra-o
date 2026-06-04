@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import type { Word } from '../types';
+import './Flashcards.css';
 
 function speak(hanzi: string) {
   if (!('speechSynthesis' in window)) return;
