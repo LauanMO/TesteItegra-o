@@ -34,7 +34,7 @@ export interface Progress {
 }
 
 export interface Exercise {
-  source: 'ia' | 'fallback';
+  source: 'gemini' | 'mock' | 'fallback' | 'ia';
   type?: string;
   question: string;
   options: string[];

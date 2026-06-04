@@ -5,6 +5,12 @@ import type { Word, Exercise as Ex } from '../types';
 
 type Mode = 'choice' | 'pinyin';
 
+function srcLabel(source: string) {
+  if (source === 'gemini') return 'via IA · Gemini';
+  if (source === 'mock') return 'IA (mock)';
+  return 'gerador local';
+}
+
 // remove marcas de tom e espaços para comparar pinyin: "Běijīng" -> "beijing"
 function normPinyin(s: string) {
   return s
@@ -126,7 +132,7 @@ export function Exercise() {
               <>
                 <p style={{ fontSize: 19, marginTop: 0 }}>
                   {ex.question}{' '}
-                  <span className="badge-src">{ex.source === 'ia' ? 'via IA' : 'gerador local'}</span>
+                  <span className="badge-src">{srcLabel(ex.source)}</span>
                 </p>
                 <div className="options">
                   {ex.options.map((opt) => {
