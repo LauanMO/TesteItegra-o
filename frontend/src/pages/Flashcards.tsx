@@ -7,6 +7,16 @@ import './Flashcards.css';
 //  1) TTS online (Google Translate) — não exige voz zh instalada no SO;
 //  2) fallback: Web Speech API nativa, caso o navegador tenha voz em zh.
 // A reprodução de áudio cross-origin via <audio> não sofre bloqueio de CORS.
+// Embaralha (Fisher-Yates) para o baralho variar a cada visita.
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function speakViaWebSpeech(hanzi: string): boolean {
   if (!('speechSynthesis' in window)) return false;
   const voices = window.speechSynthesis.getVoices();
@@ -45,7 +55,7 @@ export function Flashcards() {
     setError('');
     api<{ vocabulary: Word[] }>(`/vocabulary?level=${level}`, { auth: true })
       .then((d) => {
-        setWords(d.vocabulary);
+        setWords(shuffle(d.vocabulary));
         setI(0);
         setRevealed(false);
       })

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
+import { config } from './config.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
 import lessonRoutes from './routes/lessons.js';
@@ -17,7 +18,12 @@ export function createApp() {
     res.json({ name: 'MandaRim API', status: 'ok', health: '/health' })
   );
   app.get('/health', (_req, res) =>
-    res.json({ status: 'ok', time: new Date().toISOString() })
+    res.json({
+      status: 'ok',
+      time: new Date().toISOString(),
+      // Diagnóstico: mostra se a URL do Serviço de IA chegou ao backend.
+      iaService: config.iaServiceUrl || null,
+    })
   );
 
   app.use('/auth', authRoutes);
