@@ -1,9 +1,4 @@
-/* ============================================================
-   MandaRim — "Neon Ink"
-   Entrada global de estilos. Cada PÁGINA importa o próprio .css
-   (ex.: pages/Flashcards.css dentro de Flashcards.tsx).
-   Aqui ficam só as fundações compartilhadas por todo o app.
-   ============================================================ */
+
 @import './styles/tokens.css';   /* fontes + variáveis (claro/escuro) */
 @import './styles/base.css';     /* reset, tipografia, fundo, selo, animações */
 @import './styles/layout.css';   /* shell, topbar, nav, userbox, toggle de tema */

@@ -1,8 +1,9 @@
 /* ============================================================
-   Tokens — fontes + variáveis de tema (claro padrão / escuro)
+   Tokens — variáveis de tema (claro padrão / escuro)
    Acento: cinábrio→tangerina (朱) com apoio jade e violeta.
+   As fontes são carregadas via <link> em index.html (mais rápido,
+   com preconnect, e sem @import render-blocking).
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Manrope:wght@400;500;600;700&family=Noto+Sans+SC:wght@500;700;900&display=swap');
 
 /* ---------- LIGHT (padrão) ---------- */
 :root {
