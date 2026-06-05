@@ -22,6 +22,7 @@
 .flashcard .hanzi {
   font-family: var(--font-hanzi); font-weight: 700; font-size: clamp(96px, 22vw, 156px); line-height: 1;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  cursor: pointer; user-select: none; position: relative;
 }
 .flashcard .pinyin { font-family: var(--font-display); font-weight: 600; font-size: 30px; color: var(--jade); margin-top: 16px; }
 .flashcard .trans { font-size: 21px; color: var(--text-soft); margin-top: 10px; font-weight: 600; }

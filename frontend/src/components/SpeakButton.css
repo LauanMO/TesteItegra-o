@@ -1,0 +1,13 @@
+.speaker {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none; border: none; border-radius: 50%; cursor: pointer;
+  background: var(--grad); color: #fff; box-shadow: var(--shadow-sm);
+  transition: transform 0.14s, filter 0.14s;
+}
+.speaker:hover { transform: translateY(-1px) scale(1.05); filter: brightness(1.05); }
+.speaker:active { transform: scale(0.92); }
+.speaker svg { width: 56%; height: 56%; display: block; }
+
+.speaker-sm { width: 34px; height: 34px; }
+.speaker-md { width: 44px; height: 44px; }
+.speaker-lg { width: 58px; height: 58px; }

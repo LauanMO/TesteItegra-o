@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../auth';
+import { SpeakButton } from '../components/SpeakButton';
 import type { Word, Exercise as Ex } from '../types';
 import './Exercise.css';
 
@@ -131,6 +132,10 @@ export function Exercise() {
             {loading && <p className="muted center">Gerando exercício…</p>}
             {ex && (
               <>
+                <div className="word-prompt">
+                  <SpeakButton text={word.hanzi} size="md" />
+                  <span className="wp-hanzi">{word.hanzi}</span>
+                </div>
                 <p style={{ fontSize: 19, marginTop: 0 }}>
                   {ex.question}{' '}
                   <span className="badge-src">{srcLabel(ex.source)}</span>
@@ -157,7 +162,10 @@ export function Exercise() {
         {/* ---------- Escrever o pinyin ---------- */}
         {mode === 'pinyin' && word && (
           <form onSubmit={checkPinyin}>
-            <div className="prompt-hanzi">{word.hanzi}</div>
+            <div className="hanzi-row">
+              <div className="prompt-hanzi">{word.hanzi}</div>
+              <SpeakButton text={word.hanzi} size="lg" />
+            </div>
             <p className="center muted" style={{ marginTop: 8 }}>{word.translation}</p>
             <div className="field" style={{ maxWidth: 320, margin: '18px auto 0' }}>
               <label>Digite o pinyin (com ou sem tons)</label>

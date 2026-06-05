@@ -7,6 +7,13 @@
   font-family: var(--font-hanzi); font-weight: 700; font-size: 84px; line-height: 1; text-align: center;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
+/* palavra-alvo com botão de pronúncia (estilo Duolingo) */
+.word-prompt { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.word-prompt .wp-hanzi {
+  font-family: var(--font-hanzi); font-weight: 700; font-size: 36px; line-height: 1; color: var(--text);
+}
+.hanzi-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+
 .options { display: grid; gap: 12px; margin-top: 24px; }
 .option {
   text-align: left; background: var(--surface-2); border: 1px solid var(--border-strong);

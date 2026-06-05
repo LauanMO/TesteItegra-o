@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import { api, API_BASE } from '../api';
+import { api } from '../api';
 import { useAuth } from '../auth';
-import type { Word, Exercise as Ex } from '../types';
+import { SpeakButton } from '../components/SpeakButton';
+import type { Word } from '../types';
 import './Exercise.css';
 import './Practice.css';
 
-// "Dominar" uma palavra 
+// "Dominar" uma palavra = chegar ao topo das boxes de Leitner (igual ao backend, user.js).
 const MAX_BOX = 5;
-
-type Mode = 'choice' | 'pinyin';
 
 interface Example {
   source: string;
@@ -25,20 +24,21 @@ function srcLabel(source: string) {
   return 'gerador local';
 }
 
-// remove marcas de tom e espaços para comparar pinyin
-function normPinyin(s: string) {
-  return s
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z]/g, '');
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function speak(hanzi: string) {
-  const audio = new Audio(`${API_BASE}/tts?lang=zh-CN&text=${encodeURIComponent(hanzi)}`);
-  audio.play().catch(() => {
-    /* sem áudio é tolerável */
-  });
+// Monta 4 alternativas: a tradução correta + 3 distratores de outras palavras.
+function buildOptions(pool: Word[], correct: string): string[] {
+  const distractors = shuffle(
+    Array.from(new Set(pool.map((w) => w.translation).filter((t) => t && t !== correct)))
+  ).slice(0, 3);
+  return shuffle([correct, ...distractors]);
 }
 
 export function Practice() {
@@ -47,14 +47,13 @@ export function Practice() {
   const [word, setWord] = useState<Word | null>(null);
   const [box, setBox] = useState(0);
   const [mastered, setMastered] = useState(false);
-  const [round, setRound] = useState(0); // exercícios feitos com esta palavra nesta sessão
+  const [round, setRound] = useState(0); // frases praticadas com esta palavra nesta sessão
 
-  const [mode, setMode] = useState<Mode>('choice');
-  const [ex, setEx] = useState<Ex | null>(null);
   const [example, setExample] = useState<Example | null>(null);
+  const [options, setOptions] = useState<string[]>([]);
   const [picked, setPicked] = useState<string | null>(null);
-  const [typed, setTyped] = useState('');
   const [result, setResult] = useState<null | boolean>(null);
+  const [reveal, setReveal] = useState(false); // revelar o significado-alvo manualmente
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -64,62 +63,49 @@ export function Practice() {
       .then((d) => {
         setPool(d.vocabulary);
         if (d.vocabulary.length) {
-          selectWord(d.vocabulary[Math.floor(Math.random() * d.vocabulary.length)]);
+          selectWord(d.vocabulary[Math.floor(Math.random() * d.vocabulary.length)], d.vocabulary);
         }
       })
       .catch((e) => setError(e.message));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Carrega uma rodada (exercício + frase de exemplo) para a MESMA palavra.
-  async function loadRound(w: Word, m: Mode) {
+  // Carrega uma rodada: gera UMA frase de contexto (1 chamada de IA) e monta as
+  // alternativas localmente — o usuário lê a frase e descobre o sentido da palavra.
+  async function loadRound(w: Word, list: Word[]) {
     setError('');
     setPicked(null);
-    setTyped('');
     setResult(null);
-    setEx(null);
+    setReveal(false);
     setExample(null);
+    setOptions(buildOptions(list, w.translation));
     setLoading(true);
     try {
-      // a frase de exemplo dá o "contexto"
-      const exampleReq = api<Example>('/flashcard/example', {
+      const sample = await api<Example>('/flashcard/example', {
         method: 'POST',
         body: { vocabularyId: w.id },
         auth: true,
       });
-      if (m === 'choice') {
-        const [exercise, sample] = await Promise.all([
-          api<Ex>('/exercise/generate', { method: 'POST', body: { vocabularyId: w.id }, auth: true }),
-          exampleReq,
-        ]);
-        setEx(exercise);
-        setExample(sample);
-      } else {
-        setExample(await exampleReq);
-      }
+      setExample(sample);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao carregar exercício');
+      setError(e instanceof Error ? e.message : 'Erro ao gerar a frase de contexto');
     } finally {
       setLoading(false);
     }
   }
 
-  function selectWord(w: Word) {
+  function selectWord(w: Word, list: Word[] = pool) {
     setWord(w);
     setBox(w.progress?.box ?? 0);
     setMastered(w.progress?.status === 'learned');
     setRound(0);
-    setMode('choice');
-    loadRound(w, 'choice');
+    loadRound(w, list);
   }
 
   function nextRound() {
     if (!word) return;
-    // alterna escolha ↔ pinyin para variar o jeito de praticar a mesma palavra
-    const m: Mode = mode === 'choice' ? 'pinyin' : 'choice';
-    setMode(m);
     setRound((r) => r + 1);
-    loadRound(word, m);
+    loadRound(word, pool);
   }
 
   function pickAnother() {
@@ -142,28 +128,24 @@ export function Practice() {
       if (resp.progress.status === 'learned') setMastered(true);
       refresh(); // atualiza a barra de XP / streak no resto do app
     } catch {
+      /* progresso é best-effort */
     }
   }
 
-  function answerChoice(option: string) {
-    if (picked || !ex) return;
+  function answer(option: string) {
+    if (picked || !word) return;
     setPicked(option);
-    record(option === ex.answer);
-  }
-
-  function checkPinyin(e: React.FormEvent) {
-    e.preventDefault();
-    if (result !== null || !word) return;
-    record(normPinyin(typed) === normPinyin(word.pinyin));
+    record(option === word.translation);
   }
 
   const pct = Math.round((box / MAX_BOX) * 100);
+  const showMeaning = reveal || result !== null;
 
   return (
     <section className="rise">
       <div className="section-head">
         <h2>Praticar</h2>
-        <span className="tag">treine a mesma palavra até dominar</span>
+        <span className="tag">leia o contexto e descubra o significado</span>
       </div>
 
       {/* escolha da palavra */}
@@ -192,14 +174,21 @@ export function Practice() {
 
       {word && (
         <>
-          {/* palavra-alvo + medidor de domínio */}
+          {/* palavra-alvo + medidor de domínio (significado fica oculto) */}
           <div className="panel target">
-            <button className="speak-btn" title="Pronúncia" onClick={() => speak(word.hanzi)}>
-              🔊
-            </button>
-            <div className="target-hanzi">{word.hanzi}</div>
+            <div className="target-row">
+              <SpeakButton text={word.hanzi} size="lg" />
+              <div className="target-hanzi">{word.hanzi}</div>
+            </div>
             <div className="target-meta">
-              {word.pinyin} · {word.translation}
+              {word.pinyin} ·{' '}
+              <span
+                className={'blurmask' + (showMeaning ? ' shown' : '')}
+                onClick={() => setReveal(true)}
+                title={showMeaning ? '' : 'Clique para revelar o significado'}
+              >
+                {word.translation}
+              </span>
             </div>
 
             <div className="meter" aria-label={`Domínio: ${box} de ${MAX_BOX}`}>
@@ -216,44 +205,37 @@ export function Practice() {
             </div>
           </div>
 
-          {/* frase de contexto */}
-          <div className="panel context-card">
-            <div className="context-head">
-              <span>Em contexto</span>
-              {example && <span className="badge-src">{srcLabel(example.source)}</span>}
-            </div>
-            {!example ? (
-              <p className="muted center" style={{ margin: 0 }}>Gerando frase…</p>
-            ) : example.sentence ? (
-              <>
-                <div className="context-sentence" onClick={() => speak(example.sentence!)} title="Ouvir">
-                  {example.sentence}
-                </div>
-                {example.pinyin && <div className="context-pinyin">{example.pinyin}</div>}
-                {example.translation && <div className="context-trans">{example.translation}</div>}
-              </>
-            ) : (
-              <p className="muted center" style={{ margin: 0 }}>
-                {example.note || 'Frase de exemplo indisponível no momento.'}
-              </p>
-            )}
-          </div>
-
-          {/* exercício */}
+          {/* contexto + pergunta */}
           <div className="panel">
-            {loading && <p className="muted center">Gerando exercício…</p>}
+            {loading && <p className="muted center">Gerando contexto…</p>}
 
-            {/* múltipla escolha */}
-            {mode === 'choice' && ex && (
+            {!loading && example && (
               <>
-                <p style={{ fontSize: 19, marginTop: 0 }}>
-                  {ex.question} <span className="badge-src">{srcLabel(ex.source)}</span>
+                <div className="context-head">
+                  <span>Leia a frase</span>
+                  <span className="badge-src">{srcLabel(example.source)}</span>
+                </div>
+
+                {example.sentence ? (
+                  <>
+                    <div className="context-sentence">
+                      <SpeakButton text={example.sentence} size="sm" />
+                      <span>{example.sentence}</span>
+                    </div>
+                    {example.pinyin && <div className="context-pinyin">{example.pinyin}</div>}
+                  </>
+                ) : (
+                  <p className="muted center">{example.note || 'Frase indisponível.'}</p>
+                )}
+
+                <p className="ctx-question">
+                  O que <b>{word.hanzi}</b> significa nesta frase?
                 </p>
                 <div className="options">
-                  {ex.options.map((opt) => {
+                  {options.map((opt) => {
                     let cls = 'option';
                     if (picked) {
-                      if (opt === ex.answer) cls += ' correct';
+                      if (opt === word.translation) cls += ' correct';
                       else if (opt === picked) cls += ' wrong';
                     }
                     return (
@@ -261,54 +243,37 @@ export function Practice() {
                         key={opt}
                         className={cls}
                         disabled={!!picked}
-                        onClick={() => answerChoice(opt)}
+                        onClick={() => answer(opt)}
                       >
                         {opt}
                       </button>
                     );
                   })}
                 </div>
-              </>
-            )}
 
-            {/* escrever o pinyin */}
-            {mode === 'pinyin' && !loading && (
-              <form onSubmit={checkPinyin}>
-                <p className="center muted" style={{ marginTop: 0 }}>
-                  Qual é o pinyin de <b style={{ color: 'var(--text)' }}>{word.hanzi}</b>?
-                </p>
-                <div className="field" style={{ maxWidth: 320, margin: '14px auto 0' }}>
-                  <label>Digite o pinyin (com ou sem tons)</label>
-                  <input
-                    value={typed}
-                    autoFocus
-                    disabled={result !== null}
-                    onChange={(e) => setTyped(e.target.value)}
-                    placeholder="ex.: ni, hao, beijing"
-                  />
-                </div>
-                {result === null && (
-                  <div className="center" style={{ marginTop: 16 }}>
-                    <button className="btn" type="submit">Verificar</button>
+                {result !== null && (
+                  <div className="center afterbox">
+                    <p className={result ? 'feedback ok' : 'feedback no'}>
+                      {result ? '✓ Correto!' : `✗ ${word.hanzi} significa “${word.translation}”`}
+                    </p>
+                    {example.translation && (example.source === 'gemini' || example.source === 'ia') && (
+                      <p className="whats-happening">
+                        O que está acontecendo: <i>{example.translation}</i>
+                      </p>
+                    )}
+                    <div
+                      className="actions"
+                      style={{ justifyContent: 'center', gap: 10, marginTop: 12 }}
+                    >
+                      <button className="btn" onClick={nextRound}>Continuar →</button>
+                      <button className="btn ghost" onClick={pickAnother}>Trocar palavra</button>
+                    </div>
+                    <p className="muted" style={{ marginTop: 10, fontSize: 13 }}>
+                      {round + 1} frase(s) praticada(s) com esta palavra
+                    </p>
                   </div>
                 )}
-              </form>
-            )}
-
-            {/* feedback + próxima */}
-            {result !== null && (
-              <div className="center" style={{ marginTop: 18 }}>
-                <p className={result ? 'feedback ok' : 'feedback no'}>
-                  {result ? '✓ Correto!' : `✗ Resposta certa: ${word.pinyin} — ${word.translation}`}
-                </p>
-                <div className="actions" style={{ justifyContent: 'center', gap: 10, marginTop: 8 }}>
-                  <button className="btn" onClick={nextRound}>Continuar →</button>
-                  <button className="btn ghost" onClick={pickAnother}>Trocar palavra</button>
-                </div>
-                <p className="muted" style={{ marginTop: 10, fontSize: 13 }}>
-                  {round + 1} exercício(s) nesta palavra
-                </p>
-              </div>
+              </>
             )}
           </div>
         </>
