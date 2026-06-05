@@ -158,4 +158,4 @@ O backend já vem com **seed do HSK 1 (150 palavras)** populado na primeira exec
 
 ## 🎥 Vídeo
 
-`<adicione o link do vídeo de demonstração>`
+`https://youtu.be/2NBhedKWIUo?si=LqQkgKq6HUr8ncqI`
