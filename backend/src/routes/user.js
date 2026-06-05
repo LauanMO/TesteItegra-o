@@ -70,7 +70,9 @@ router.get('/progress', (req, res) => {
       `SELECT v.hsk_level AS level,
               COUNT(*) AS total,
               SUM(CASE WHEN p.status = 'learned' THEN 1 ELSE 0 END) AS learned,
-              SUM(CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END) AS studied
+              SUM(CASE WHEN p.id IS NOT NULL THEN 1 ELSE 0 END) AS studied,
+              SUM(COALESCE(p.box, 0)) AS boxSum,
+              ${MAX_BOX} AS maxBox
        FROM vocabulary v
        LEFT JOIN progress p ON p.vocabulary_id = v.id AND p.user_id = ?
        GROUP BY v.hsk_level

@@ -4,13 +4,15 @@ import { useTheme, ThemeToggle } from './theme';
 import { Login } from './pages/Login';
 import { Flashcards } from './pages/Flashcards';
 import { Exercise } from './pages/Exercise';
+import { Practice } from './pages/Practice';
 import { Dashboard } from './pages/Dashboard';
 
-type Tab = 'flash' | 'exercise' | 'dash';
+type Tab = 'flash' | 'exercise' | 'practice' | 'dash';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'flash', label: 'Flashcards' },
   { id: 'exercise', label: 'Exercício' },
+  { id: 'practice', label: 'Praticar' },
   { id: 'dash', label: 'Painel' },
 ];
 
@@ -67,6 +69,7 @@ export function App() {
       <main>
         {tab === 'flash' && <Flashcards />}
         {tab === 'exercise' && <Exercise />}
+        {tab === 'practice' && <Practice />}
         {tab === 'dash' && <Dashboard />}
       </main>
     </div>

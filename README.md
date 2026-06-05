@@ -33,12 +33,12 @@ um serviço de IA — que se comunicam via REST.
 
 ## 🛠️ Tecnologias
 
-| Sistema      | Stack                                                           |
-| ------------ | --------------------------------------------------------------- |
+| Sistema      | Stack                                                                   |
+| ------------ | ----------------------------------------------------------------------- |
 | Frontend     | React 18, TypeScript, Vite 6, TTS de pronúncia zh-CN, tema claro/escuro |
-| Backend      | Node.js 22+, Express 4, `node:sqlite` (embutido), JWT, bcryptjs |
-| Serviço IA   | Python 3.12, FastAPI, Uvicorn, google-genai (Gemini)            |
-| Orquestração | Docker, docker-compose                                          |
+| Backend      | Node.js 22+, Express 4, `node:sqlite` (embutido), JWT, bcryptjs         |
+| Serviço IA   | Python 3.12, FastAPI, Uvicorn, google-genai (Gemini)                    |
+| Orquestração | Docker, docker-compose                                                  |
 
 ---
 
@@ -92,19 +92,19 @@ cd frontend && npm install && npm run dev
 
 ### Backend (Node/Express) — `:3001`
 
-| Método | Rota                  | Auth | Descrição                                   |
-| ------ | --------------------- | :--: | ------------------------------------------- |
-| POST   | `/auth/register`      |  —   | Cadastro → `{ token, user }`                |
-| POST   | `/auth/login`         |  —   | Login → `{ token, user }`                   |
-| GET    | `/user/profile`       |  ✅  | Perfil + estatísticas                       |
-| GET    | `/user/progress`      |  ✅  | Progresso por nível, revisões, streak       |
-| POST   | `/user/progress`      |  ✅  | Salva resultado `{ vocabularyId, correct }` |
-| GET    | `/lessons`            |  —   | Visão geral dos níveis HSK 1–6              |
-| GET    | `/vocabulary?level=1` |  —   | Vocabulário do nível                        |
-| POST   | `/exercise/generate`  |  —   | Exercício (orquestra IA, com fallback)      |
-| POST   | `/flashcard/example`  |  —   | Frase de exemplo (orquestra IA)             |
+| Método | Rota                  | Auth | Descrição                                     |
+| ------ | --------------------- | :--: | --------------------------------------------- |
+| POST   | `/auth/register`      |  —   | Cadastro → `{ token, user }`                  |
+| POST   | `/auth/login`         |  —   | Login → `{ token, user }`                     |
+| GET    | `/user/profile`       |  ✅  | Perfil + estatísticas                         |
+| GET    | `/user/progress`      |  ✅  | Progresso por nível, revisões, streak         |
+| POST   | `/user/progress`      |  ✅  | Salva resultado `{ vocabularyId, correct }`   |
+| GET    | `/lessons`            |  —   | Visão geral dos níveis HSK 1–6                |
+| GET    | `/vocabulary?level=1` |  —   | Vocabulário do nível                          |
+| POST   | `/exercise/generate`  |  —   | Exercício (orquestra IA, com fallback)        |
+| POST   | `/flashcard/example`  |  —   | Frase de exemplo (orquestra IA)               |
 | GET    | `/tts?text=…&lang=…`  |  —   | Áudio de pronúncia (proxy TTS) → `audio/mpeg` |
-| GET    | `/health`             |  —   | Status do serviço + URL da IA configurada   |
+| GET    | `/health`             |  —   | Status do serviço + URL da IA configurada     |
 
 ### Serviço de IA (Python/FastAPI) — `:8000`
 

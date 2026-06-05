@@ -43,7 +43,8 @@ export function Dashboard() {
       <div className="panel rise" style={{ marginTop: 22 }}>
         <h3 style={{ fontSize: 20, marginBottom: 8 }}>Progresso por nível</h3>
         {data.byLevel.map((l) => {
-          const pct = l.total ? Math.round((Number(l.learned) / l.total) * 100) : 0;
+          // barra de XP
+          const pct = l.total ? Math.round((Number(l.boxSum) / (l.total * l.maxBox)) * 100) : 0;
           return (
             <div className="levelrow" key={l.level}>
               <span className="lname">HSK {l.level}</span>

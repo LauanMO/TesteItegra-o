@@ -29,7 +29,7 @@ export interface Progress {
   stats: Stats;
   streak: number;
   lastStudyDate: string | null;
-  byLevel: { level: number; total: number; learned: number; studied: number }[];
+  byLevel: { level: number; total: number; learned: number; studied: number; boxSum: number; maxBox: number }[];
   dueWords: { id: number; hanzi: string; pinyin: string; translation: string; level: number }[];
 }
 
