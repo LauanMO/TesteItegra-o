@@ -27,18 +27,18 @@ um serviço de IA — que se comunicam via REST.
 2. **Backend** (Node + Express + SQLite) — autenticação JWT, usuários, progresso,
    vocabulário HSK e **orquestração** das chamadas ao Serviço de IA.
 3. **Serviço de IA** (Python + FastAPI) — recebe vocabulário e chama o **Gemini**
-   para gerar exercícios e frases de exemplo (com *fallback* mock sem chave).
+   para gerar exercícios e frases de exemplo (com _fallback_ mock sem chave).
 
 ---
 
 ## 🛠️ Tecnologias
 
-| Sistema      | Stack                                                                 |
-| ------------ | --------------------------------------------------------------------- |
-| Frontend     | React 18, TypeScript, Vite 6, Web Speech API (pronúncia zh-CN)        |
-| Backend      | Node.js 22+, Express 4, `node:sqlite` (embutido), JWT, bcryptjs       |
-| Serviço IA   | Python 3.12, FastAPI, Uvicorn, google-genai (Gemini)                  |
-| Orquestração | Docker, docker-compose                                                |
+| Sistema      | Stack                                                           |
+| ------------ | --------------------------------------------------------------- |
+| Frontend     | React 18, TypeScript, Vite 6, TTS de pronúncia zh-CN, tema claro/escuro |
+| Backend      | Node.js 22+, Express 4, `node:sqlite` (embutido), JWT, bcryptjs |
+| Serviço IA   | Python 3.12, FastAPI, Uvicorn, google-genai (Gemini)            |
+| Orquestração | Docker, docker-compose                                          |
 
 ---
 
@@ -67,8 +67,8 @@ docker compose up --build
 ```
 
 - Frontend → http://localhost:5173
-- Backend  → http://localhost:3001
-- IA       → http://localhost:8000/docs
+- Backend → http://localhost:3001
+- IA → http://localhost:8000/docs
 
 > Sem `GEMINI_API_KEY`, os exercícios usam o gerador mock — tudo continua funcional.
 
@@ -92,45 +92,49 @@ cd frontend && npm install && npm run dev
 
 ### Backend (Node/Express) — `:3001`
 
-| Método | Rota                   | Auth | Descrição                                  |
-| ------ | ---------------------- | :--: | ------------------------------------------ |
-| POST   | `/auth/register`       |  —   | Cadastro → `{ token, user }`               |
-| POST   | `/auth/login`          |  —   | Login → `{ token, user }`                  |
-| GET    | `/user/profile`        |  ✅  | Perfil + estatísticas                      |
-| GET    | `/user/progress`       |  ✅  | Progresso por nível, revisões, streak      |
-| POST   | `/user/progress`       |  ✅  | Salva resultado `{ vocabularyId, correct }`|
-| GET    | `/lessons`             |  —   | Visão geral dos níveis HSK 1–6             |
-| GET    | `/vocabulary?level=1`  |  —   | Vocabulário do nível                       |
-| POST   | `/exercise/generate`   |  —   | Exercício (orquestra IA, com fallback)     |
-| POST   | `/flashcard/example`   |  —   | Frase de exemplo (orquestra IA)            |
+| Método | Rota                  | Auth | Descrição                                   |
+| ------ | --------------------- | :--: | ------------------------------------------- |
+| POST   | `/auth/register`      |  —   | Cadastro → `{ token, user }`                |
+| POST   | `/auth/login`         |  —   | Login → `{ token, user }`                   |
+| GET    | `/user/profile`       |  ✅  | Perfil + estatísticas                       |
+| GET    | `/user/progress`      |  ✅  | Progresso por nível, revisões, streak       |
+| POST   | `/user/progress`      |  ✅  | Salva resultado `{ vocabularyId, correct }` |
+| GET    | `/lessons`            |  —   | Visão geral dos níveis HSK 1–6              |
+| GET    | `/vocabulary?level=1` |  —   | Vocabulário do nível                        |
+| POST   | `/exercise/generate`  |  —   | Exercício (orquestra IA, com fallback)      |
+| POST   | `/flashcard/example`  |  —   | Frase de exemplo (orquestra IA)             |
+| GET    | `/tts?text=…&lang=…`  |  —   | Áudio de pronúncia (proxy TTS) → `audio/mpeg` |
+| GET    | `/health`             |  —   | Status do serviço + URL da IA configurada   |
 
 ### Serviço de IA (Python/FastAPI) — `:8000`
 
-| Método | Rota                  | Corpo                       | Descrição                              |
-| ------ | --------------------- | --------------------------- | -------------------------------------- |
-| POST   | `/generate/exercise`  | `{ word, pinyin, meaning }` | Múltipla escolha (Gemini ou mock)      |
-| POST   | `/generate/flashcard` | `{ word }`                  | Frase de exemplo (hanzi, pinyin, trad.)|
+| Método | Rota                  | Corpo                       | Descrição                               |
+| ------ | --------------------- | --------------------------- | --------------------------------------- |
+| POST   | `/generate/exercise`  | `{ word, pinyin, meaning }` | Múltipla escolha (Gemini ou mock)       |
+| POST   | `/generate/flashcard` | `{ word }`                  | Frase de exemplo (hanzi, pinyin, trad.) |
 
 ---
 
 ## ⚙️ Variáveis de ambiente
 
-| Serviço    | Variável         | Descrição                                  |
-| ---------- | ---------------- | ------------------------------------------ |
-| Backend    | `JWT_SECRET`     | Segredo para assinar tokens JWT            |
-| Backend    | `IA_SERVICE_URL` | URL do Serviço de IA (vazio → fallback)    |
-| Serviço IA | `GEMINI_API_KEY` | Chave do Google AI Studio (vazio → mock)   |
-| Frontend   | `VITE_API_URL`   | URL do backend                             |
+| Serviço    | Variável         | Descrição                                |
+| ---------- | ---------------- | ---------------------------------------- |
+| Backend    | `JWT_SECRET`     | Segredo para assinar tokens JWT          |
+| Backend    | `IA_SERVICE_URL` | URL do Serviço de IA (vazio → fallback)  |
+| Serviço IA | `GEMINI_API_KEY` | Chave do Google AI Studio (vazio → mock) |
+| Frontend   | `VITE_API_URL`   | URL do backend                           |
 
 ---
 
 ## 🗂️ Funcionalidades
 
 - **Aprendizado:** flashcards (caractere → pinyin → tradução), múltipla escolha
-  (gerada por IA), escrever o pinyin, pronúncia via Web Speech API (zh-CN).
+  (gerada por IA), escrever o pinyin, pronúncia em mandarim (TTS via backend,
+  com fallback para a Web Speech API nativa).
 - **Progresso:** níveis HSK 1–6, repetição espaçada (Leitner — palavras erradas
   voltam mais cedo), dashboard com aprendidas/pendentes e streak de dias.
 - **Usuário:** cadastro e login com JWT, perfil com nível HSK e estatísticas.
+- **Interface:** tema claro/escuro (alternável), layout responsivo.
 
 O backend já vem com **seed do HSK 1 (150 palavras)** populado na primeira execução.
 
@@ -138,16 +142,17 @@ O backend já vem com **seed do HSK 1 (150 palavras)** populado na primeira exec
 
 ## ☁️ Deploy
 
-| Sistema    | Plataforma | Configuração                                                        |
-| ---------- | ---------- | ------------------------------------------------------------------- |
-| Frontend   | Vercel     | preset Vite · build `npm run build` · env `VITE_API_URL`            |
-| Backend    | Render     | build `npm install` · start `npm start` · env `JWT_SECRET`, `IA_SERVICE_URL` |
+| Sistema    | Plataforma | Configuração                                                                                                          |
+| ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| Frontend   | Vercel     | preset Vite · build `npm run build` · env `VITE_API_URL`                                                              |
+| Backend    | Render     | build `npm install` · start `npm start` · env `JWT_SECRET`, `IA_SERVICE_URL`                                          |
 | Serviço IA | Render     | build `pip install -r requirements.txt` · start `uvicorn main:app --host 0.0.0.0 --port $PORT` · env `GEMINI_API_KEY` |
 
 **Links do deploy:**
-- Frontend: `<adicione o link da Vercel>`
-- Backend: `<adicione o link do Render>`
-- Serviço IA: `<adicione o link do Render>`
+
+- Frontend: https://mandarim-seven.vercel.app
+- Backend: https://mandarim-backend.onrender.com
+- Serviço IA: https://mandarim-ia-service.onrender.com
 
 ---
 
